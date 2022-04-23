@@ -29,6 +29,17 @@ func routes(_ app: Application) throws {
             }
     }
     
+    // how to delete a movie -> /movies/id DELETE
+    app.delete("movies", ":movieId") { req -> EventLoopFuture<HTTPStatus> in
+        
+        Movie.find(req.parameters.get("movieId"), on: req.db)
+            .unwrap(or: Abort(.notFound))
+            .flatMap {
+                $0.delete(on: req.db)
+            }.transform(to: .ok)
+        
+    }
+    
     //post a movie title
     app.post("movies") { req -> EventLoopFuture<Movie> in
 
